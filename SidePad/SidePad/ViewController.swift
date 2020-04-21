@@ -77,13 +77,23 @@ class ViewController: UIViewController {
         default:
             break
         }
+        
+        if connectedCentral != nil {
+            print("Send swipe '\(swipeDirection.rawValue)'")
+            
+            peripheralManager.updateValue(
+                swipeDirection.rawValue.data(using: .utf8)!,
+                for: transferCharacteristic!,
+                onSubscribedCentrals: [connectedCentral!])
+        }
     }
     
     @IBAction func switchChanged(_ sender: Any) {
         // All we advertise is our service's UUID.
         if advertisingSwitch.isOn {
-            peripheralManager.startAdvertising([CBAdvertisementDataServiceUUIDsKey: [TransferService.serviceUUID]])
+//            peripheralManager.startAdvertising([CBAdvertisementDataServiceUUIDsKey: [TransferService.serviceUUID]])
         } else {
+            // Stop advertising service when cerntal was conncted
             peripheralManager.stopAdvertising()
         }
     }
@@ -113,6 +123,8 @@ class ViewController: UIViewController {
         
         // Save the characteristic for later.
         self.transferCharacteristic = transferCharacteristic
+        
+        peripheralManager.startAdvertising([CBAdvertisementDataServiceUUIDsKey: [TransferService.serviceUUID]])
 
     }
     
