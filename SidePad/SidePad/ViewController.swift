@@ -27,7 +27,6 @@ class ViewController: UIViewController {
     var transferCharacteristic: CBMutableCharacteristic?
     var connectedCentral: CBCentral?
     var dataToSend = Data()
-    var sendDataIndex: Int = 0
     var swipeDirection = SwipeDirection.None
 
     override func viewDidLoad() {
@@ -93,7 +92,7 @@ class ViewController: UIViewController {
         if advertisingSwitch.isOn {
 //            peripheralManager.startAdvertising([CBAdvertisementDataServiceUUIDsKey: [TransferService.serviceUUID]])
         } else {
-            // Stop advertising service when cerntal was conncted
+            // TODO: Stop advertising service when cerntal was conncted
             peripheralManager.stopAdvertising()
         }
     }
@@ -108,9 +107,9 @@ class ViewController: UIViewController {
         // Start with the CBMutableCharacteristic.
         let transferCharacteristic = CBMutableCharacteristic(
                                     type: TransferService.characteristicUUID,
-                                    properties: [.notify, .writeWithoutResponse],
+                                    properties: [.notify, .read],
                                     value: nil,
-                                    permissions: [.readable, .writeable])
+                                    permissions: [.readable])
         
         // Create a service from the characteristic.
         let transferService = CBMutableService(type: TransferService.serviceUUID, primary: true)
@@ -124,6 +123,7 @@ class ViewController: UIViewController {
         // Save the characteristic for later.
         self.transferCharacteristic = transferCharacteristic
         
+        // Start advertising
         peripheralManager.startAdvertising([CBAdvertisementDataServiceUUIDsKey: [TransferService.serviceUUID]])
 
     }
@@ -131,85 +131,32 @@ class ViewController: UIViewController {
     /*
      *  Sends the next amount of data to the connected central
      */
-    static var sendingEOM = false
-    
     private func sendData() {
-        
+
         guard let transferCharacteristic = transferCharacteristic else {
             return
         }
         
-        // First up, check if we're meant to be sending an EOM
-        if ViewController.sendingEOM {
-            // send it
-            let didSend = peripheralManager.updateValue(
-                                                "EOM".data(using: .utf8)!,
-                                                for: transferCharacteristic,
-                                                onSubscribedCentrals: nil)
-            // Did it send?
-            if didSend {
-                // It did, so mark it as sent
-                ViewController.sendingEOM = false
-                print("Sent: EOM")
-            }
-            // It didn't send, so we'll exit and wait for peripheralManagerIsReadyToUpdateSubscribers to call sendData again
-            return
-        }
+        // Work out how big it should be
+        // var amountToSend = dataToSend.count - sendDataIndex
+        // if let mtu = connectedCentral?.maximumUpdateValueLength {
+        //     print("amountToSend = %d, mtu = %d", amountToSend, mtu)
+        //     amountToSend = min(amountToSend, mtu)
+        // }
         
-        // We're not sending an EOM, so we're sending data
-        // Is there any left to send?
-        if sendDataIndex >= dataToSend.count {
-            // No data left.  Do nothing
-            return
-        }
+        // TODO: Check if it fits into amountToSend
+        // Send it
+        print("Send '\(PERIPHERAL_NAME)'")
+        let didSend = peripheralManager.updateValue(
+                    PERIPHERAL_NAME.data(using: .utf8)!,
+                    for: transferCharacteristic,
+                    onSubscribedCentrals: nil)
         
-        // There's data left, so send until the callback fails, or we're done.
-        var didSend = true
-        while didSend {
-            
-            // Work out how big it should be
-            var amountToSend = dataToSend.count - sendDataIndex
-            if let mtu = connectedCentral?.maximumUpdateValueLength {
-                print("amountToSend = %d, mtu = %d", amountToSend, mtu)
-                amountToSend = min(amountToSend, mtu)
-            }
-            
-            // Copy out the data we want
-            let chunk = dataToSend.subdata(in: sendDataIndex..<(sendDataIndex + amountToSend))
-            
-            // Send it
-            didSend = peripheralManager.updateValue(chunk, for: transferCharacteristic, onSubscribedCentrals: nil)
-            
-            // If it didn't work, drop out and wait for the callback
-            if !didSend {
-                return
-            }
-            
-            let stringFromData = String(data: chunk, encoding: .utf8)
-            print("Sent %d bytes: %s", chunk.count, String(describing: stringFromData))
-            
-            // It did send, so update our index
-            sendDataIndex += amountToSend
-            // Was it the last one?
-            if sendDataIndex >= dataToSend.count {
-                // It was - send an EOM
-                
-                // Set this so if the send fails, we'll send it next time
-                ViewController.sendingEOM = true
-                
-                //Send it
-                let eomSent = peripheralManager.updateValue(
-                                "EOM".data(using: .utf8)!,
-                                for: transferCharacteristic,
-                                onSubscribedCentrals: nil)
-                
-                if eomSent {
-                    // It sent; we're all done
-                    ViewController.sendingEOM = false
-                    print("Sent: EOM")
-                }
-                return
-            }
+        // If it didn't work, drop out and wait for the callback
+        if !didSend {
+            // TODO: do something
+            print("Failed to send '\(PERIPHERAL_NAME)'")
+            return
         }
     }
 }
@@ -270,9 +217,6 @@ extension ViewController: CBPeripheralManagerDelegate {
         
         // Get the data
         dataToSend = swipeDirection.rawValue.data(using: .utf8)!
-        
-        // Reset the index
-        sendDataIndex = 0
         
         // save central
         connectedCentral = central

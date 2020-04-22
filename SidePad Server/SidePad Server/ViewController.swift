@@ -9,19 +9,24 @@
 import Cocoa
 import CoreBluetooth
 
+enum SwipeDirection: String {
+    case None
+    case Left
+    case Up
+    case Right
+    case Down
+}
+
 class ViewController: NSViewController
 {
     var centralManager: CBCentralManager!
 
     var discoveredPeripheral: CBPeripheral?
     var transferCharacteristic: CBCharacteristic?
-    var writeIterationsComplete = 0
-    var connectionIterationsComplete = 0
     
-    let defaultIterations = 5     // change this value based on test usecase
-    
-    var data = Data()
-    
+    lazy var window: NSWindow = self.view.window!
+    var mouseLocation: NSPoint { NSEvent.mouseLocation }
+
     @IBOutlet weak var countLabel: NSTextField!
     @IBOutlet var logText: NSTextView!
     let queue = DispatchQueue.main
@@ -34,6 +39,16 @@ class ViewController: NSViewController
                     delegate: self,
                     queue: nil,
                     options: [CBCentralManagerOptionShowPowerAlertKey: true])
+        
+//        NSEvent.addGlobalMonitorForEvents(matching: [.mouseMoved]) { _ in
+////            print(String(format: "%.0f, %.0f", self.mouseLocation.x, self.mouseLocation.y))
+//        }
+    }
+    
+    override func viewWillAppear() {
+        super.viewWillAppear()
+
+        window.acceptsMouseMovedEvents = true
     }
     
     override var representedObject: Any? {
@@ -190,13 +205,6 @@ extension ViewController: CBCentralManagerDelegate {
         centralManager.stopScan()
         print("Scanning stopped")
         
-        // set iteration info
-        connectionIterationsComplete += 1
-        writeIterationsComplete = 0
-        
-        // Clear the data that we may already have
-        data.removeAll(keepingCapacity: false)
-        
         // Make sure we get the discovery callbacks
         peripheral.delegate = self
         
@@ -291,23 +299,11 @@ extension ViewController: CBPeripheralDelegate {
         guard let characteristicData = characteristic.value,
             let stringFromData = String(data: characteristicData, encoding: .utf8) else { return }
         
-        print("Received %d bytes: %s", characteristicData.count, stringFromData)
+        print("Received \(characteristicData.count) bytes: '\(stringFromData)'")
         
-        // Have we received the end-of-message token?
-        if stringFromData == "EOM" {
-            // End-of-message case: show the data.
-            // Dispatch the text view update to the main queue for updating the UI, because
-            // we don't know which thread this method will be called back on.
-            DispatchQueue.main.async() {
-                print("Received data: %s", String(data: self.data, encoding: .utf8) ?? "null")
-//                self.textView.text = String(data: self.data, encoding: .utf8)
-            }
-            
-            // Write test data
-//            writeData()
-        } else {
-            // Otherwise, just append the data to what we have previously received.
-            data.append(characteristicData)
+        DispatchQueue.main.async() {
+            print("Received data: ", stringFromData)
+            self.moveCursor(stringFromData)
         }
     }
     
@@ -341,6 +337,38 @@ extension ViewController: CBPeripheralDelegate {
     func peripheralIsReady(toSendWriteWithoutResponse peripheral: CBPeripheral) {
         print("Peripheral is ready, send data")
 //        writeData()
+    }
+    
+    // MARK: Move cursor
+    
+    func moveCursor(_ direction: String) {
+        var xDelta = CGFloat(0)
+        var yDelta = CGFloat(0)
+        var mouseLocation = self.mouseLocation
+
+        switch direction {
+        case SwipeDirection.Left.rawValue:
+            xDelta = -10;
+        case SwipeDirection.Up.rawValue:
+            yDelta = -10;
+        case SwipeDirection.Right.rawValue:
+            xDelta = +10;
+        case SwipeDirection.Down.rawValue:
+            yDelta = +10;
+        default:
+            // TODO: do something
+            print("Assert here")
+        }
+        
+        print("x = \(xDelta), y = \(yDelta)")
+        
+        mouseLocation.y = NSHeight(NSScreen.screens[0].frame) - mouseLocation.y
+//        mouseLocation.x = NSHeight(NSScreen.screens[0].frame) - mouseLocation.x
+        mouseLocation.x += xDelta
+        mouseLocation.y += yDelta
+        CGDisplayMoveCursorToPoint(CGMainDisplayID(), mouseLocation)
+
+        print(String(format: "%.0f, %.0f", self.mouseLocation.x, self.mouseLocation.y))
     }
 
 }

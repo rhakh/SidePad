@@ -9,6 +9,7 @@
 import Foundation
 import CoreBluetooth
 
+// TODO: Set it as name of bluetooth device
 let PERIPHERAL_NAME = "SPPeriferal"
 
 struct TransferService {
