@@ -13,6 +13,10 @@
 		84659079243A93380045C8E6 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 84659077243A93380045C8E6 /* Main.storyboard */; };
 		8465907B243A93390045C8E6 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 8465907A243A93390045C8E6 /* Assets.xcassets */; };
 		8465907E243A93390045C8E6 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 8465907C243A93390045C8E6 /* LaunchScreen.storyboard */; };
+		846FF9AF24524C7700FBDC46 /* ConnectionController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 846FF9AE24524C7700FBDC46 /* ConnectionController.swift */; };
+		846FF9B124524E7400FBDC46 /* ConnectionControllerCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 846FF9B024524E7400FBDC46 /* ConnectionControllerCell.swift */; };
+		846FF9B324524F7C00FBDC46 /* ConnectCandidate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 846FF9B224524F7C00FBDC46 /* ConnectCandidate.swift */; };
+		846FF9B5245266CD00FBDC46 /* RemoteController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 846FF9B4245266CD00FBDC46 /* RemoteController.swift */; };
 		84758466244DC9B500069F06 /* TransferService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84758465244DC9B500069F06 /* TransferService.swift */; };
 /* End PBXBuildFile section */
 
@@ -25,6 +29,10 @@
 		8465907A243A93390045C8E6 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		8465907D243A93390045C8E6 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		8465907F243A93390045C8E6 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		846FF9AE24524C7700FBDC46 /* ConnectionController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConnectionController.swift; sourceTree = "<group>"; };
+		846FF9B024524E7400FBDC46 /* ConnectionControllerCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConnectionControllerCell.swift; sourceTree = "<group>"; };
+		846FF9B224524F7C00FBDC46 /* ConnectCandidate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConnectCandidate.swift; sourceTree = "<group>"; };
+		846FF9B4245266CD00FBDC46 /* RemoteController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RemoteController.swift; sourceTree = "<group>"; };
 		84758465244DC9B500069F06 /* TransferService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransferService.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -58,11 +66,15 @@
 		84659070243A93380045C8E6 /* SidePad */ = {
 			isa = PBXGroup;
 			children = (
+				846FF9AE24524C7700FBDC46 /* ConnectionController.swift */,
+				846FF9B024524E7400FBDC46 /* ConnectionControllerCell.swift */,
+				846FF9B224524F7C00FBDC46 /* ConnectCandidate.swift */,
+				846FF9B4245266CD00FBDC46 /* RemoteController.swift */,
+				84659077243A93380045C8E6 /* Main.storyboard */,
 				84659071243A93380045C8E6 /* AppDelegate.swift */,
 				84659073243A93380045C8E6 /* SceneDelegate.swift */,
 				84659075243A93380045C8E6 /* ViewController.swift */,
 				84758465244DC9B500069F06 /* TransferService.swift */,
-				84659077243A93380045C8E6 /* Main.storyboard */,
 				8465907A243A93390045C8E6 /* Assets.xcassets */,
 				8465907C243A93390045C8E6 /* LaunchScreen.storyboard */,
 				8465907F243A93390045C8E6 /* Info.plist */,
@@ -142,7 +154,11 @@
 			buildActionMask = 2147483647;
 			files = (
 				84659076243A93380045C8E6 /* ViewController.swift in Sources */,
+				846FF9B5245266CD00FBDC46 /* RemoteController.swift in Sources */,
 				84758466244DC9B500069F06 /* TransferService.swift in Sources */,
+				846FF9B324524F7C00FBDC46 /* ConnectCandidate.swift in Sources */,
+				846FF9AF24524C7700FBDC46 /* ConnectionController.swift in Sources */,
+				846FF9B124524E7400FBDC46 /* ConnectionControllerCell.swift in Sources */,
 				84659072243A93380045C8E6 /* AppDelegate.swift in Sources */,
 				84659074243A93380045C8E6 /* SceneDelegate.swift in Sources */,
 			);
