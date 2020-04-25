@@ -8,23 +8,23 @@
 
 /* Begin PBXBuildFile section */
 		84407F78244518160083F2DA /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84407F77244518160083F2DA /* AppDelegate.swift */; };
-		84407F7A244518160083F2DA /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84407F79244518160083F2DA /* ViewController.swift */; };
 		84407F7C244518180083F2DA /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 84407F7B244518180083F2DA /* Assets.xcassets */; };
 		84407F7F244518180083F2DA /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 84407F7D244518180083F2DA /* Main.storyboard */; };
-		844E44DB24466DA300EE4677 /* DeviceCellController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 844E44DA24466DA300EE4677 /* DeviceCellController.swift */; };
 		84758464244CECAA00069F06 /* TransferService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84758463244CECAA00069F06 /* TransferService.swift */; };
+		84F5689C2454AF8500DCCA4A /* ConnectionController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84F5689B2454AF8500DCCA4A /* ConnectionController.swift */; };
+		84F5689E2454E51100DCCA4A /* RemoteManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84F5689D2454E51100DCCA4A /* RemoteManager.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		84407F74244518160083F2DA /* SidePad Server.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "SidePad Server.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		84407F77244518160083F2DA /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
-		84407F79244518160083F2DA /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
 		84407F7B244518180083F2DA /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		84407F7E244518180083F2DA /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		84407F80244518180083F2DA /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		84407F81244518180083F2DA /* SidePad_Server.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = SidePad_Server.entitlements; sourceTree = "<group>"; };
-		844E44DA24466DA300EE4677 /* DeviceCellController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceCellController.swift; sourceTree = "<group>"; };
 		84758463244CECAA00069F06 /* TransferService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransferService.swift; sourceTree = "<group>"; };
+		84F5689B2454AF8500DCCA4A /* ConnectionController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConnectionController.swift; sourceTree = "<group>"; };
+		84F5689D2454E51100DCCA4A /* RemoteManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RemoteManager.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -57,12 +57,12 @@
 		84407F76244518160083F2DA /* SidePad Server */ = {
 			isa = PBXGroup;
 			children = (
+				84F5689B2454AF8500DCCA4A /* ConnectionController.swift */,
+				84F5689D2454E51100DCCA4A /* RemoteManager.swift */,
 				84407F77244518160083F2DA /* AppDelegate.swift */,
-				84407F79244518160083F2DA /* ViewController.swift */,
 				84758463244CECAA00069F06 /* TransferService.swift */,
 				84407F7B244518180083F2DA /* Assets.xcassets */,
 				84407F7D244518180083F2DA /* Main.storyboard */,
-				844E44DA24466DA300EE4677 /* DeviceCellController.swift */,
 				84407F80244518180083F2DA /* Info.plist */,
 				84407F81244518180083F2DA /* SidePad_Server.entitlements */,
 			);
@@ -139,9 +139,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				84407F7A244518160083F2DA /* ViewController.swift in Sources */,
 				84758464244CECAA00069F06 /* TransferService.swift in Sources */,
-				844E44DB24466DA300EE4677 /* DeviceCellController.swift in Sources */,
+				84F5689E2454E51100DCCA4A /* RemoteManager.swift in Sources */,
+				84F5689C2454AF8500DCCA4A /* ConnectionController.swift in Sources */,
 				84407F78244518160083F2DA /* AppDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

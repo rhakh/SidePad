@@ -99,12 +99,26 @@ class ConnectionController: UITableViewController {
         if segue.identifier == "RemoteControllSegue" {
             let indexPath = tableView.indexPathForSelectedRow!
             let selectedCandidate = connectCandidates[indexPath.row]
-            let navController = segue.destination as! UINavigationController
-            let remoteController = navController.topViewController as! RemoteController
+            let remoteController = segue.destination as! RemoteController
+            
+            os_log("Select candidate %s, send accept message", selectedCandidate.name)
+            
+            // TODO: Move this to selectForRowAt
+            let didSend = peripheralManager.updateValue(
+                                "Accept connect".data(using: .utf8)!,
+                                for: self.connectCharacteristic!,
+                                onSubscribedCentrals: [selectedCandidate.central])
+            if !didSend {
+                // TODO: Do something with it
+                os_log("Failed to send connect accept message")
+            }
 
             // TODO: Delete connectCharacteristic.
-            remoteController.central = selectedCandidate
+            // Remove all other centrals
+            remoteController.manager = selectedCandidate
             remoteController.service = connectService
+            remoteController.characteristic = connectCharacteristic
+            remoteController.peripheral = peripheralManager
         }
     }
 
@@ -131,6 +145,10 @@ class ConnectionController: UITableViewController {
         // Save the characteristic for later.
         self.connectCharacteristic = connectCharacteristic
         self.connectService = connectService
+        
+        // Start advertising
+        peripheralManager.startAdvertising(
+            [CBAdvertisementDataServiceUUIDsKey: [TransferService.serviceUUID]])
     }
 }
 
@@ -192,7 +210,10 @@ extension ConnectionController: CBPeripheralManagerDelegate {
     /*
      *  Catch when someone subscribes to our characteristic, then start sending them data
      */
-    func peripheralManager(_ peripheral: CBPeripheralManager, central: CBCentral, didSubscribeTo characteristic: CBCharacteristic) {
+    func peripheralManager(_ peripheral: CBPeripheralManager,
+                           central: CBCentral,
+                           didSubscribeTo characteristic: CBCharacteristic)
+    {
 
         guard let connectCharacteristic = connectCharacteristic else {
             os_log("connectCharacteristic is nil")
@@ -206,14 +227,10 @@ extension ConnectionController: CBPeripheralManagerDelegate {
                         "📱 iPhone".data(using: .utf8)!,
                         for: connectCharacteristic,
                         onSubscribedCentrals: nil)
-
-        // Start advertising
-        peripheralManager.startAdvertising(
-            [CBAdvertisementDataServiceUUIDsKey: [TransferService.serviceUUID]])
         
         if !didSend {
             // TODO: Asser, connection stoped here
-            os_log("Failed to send connect message")
+            os_log("Failed to send device name")
             return
         }
     }
@@ -221,7 +238,10 @@ extension ConnectionController: CBPeripheralManagerDelegate {
     /*
      *  Recognize when the central unsubscribes
      */
-    func peripheralManager(_ peripheral: CBPeripheralManager, central: CBCentral, didUnsubscribeFrom characteristic: CBCharacteristic) {
+    func peripheralManager(_ peripheral: CBPeripheralManager,
+                           central: CBCentral,
+                           didUnsubscribeFrom characteristic: CBCharacteristic)
+    {
         os_log("Central unsubscribed from characteristic")
         
         // TODO: Remove particular central, not first one
