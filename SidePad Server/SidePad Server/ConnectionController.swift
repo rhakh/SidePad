@@ -22,6 +22,7 @@ class ConnectionController: NSViewController {
     var centralManager: CBCentralManager!
     var discoveredPeripheral: CBPeripheral?
     var connectCharacteristic: CBCharacteristic?
+    var centralTxCharacteristic: CBCharacteristic?
     var connectionStatus: ConnectionStatus = .disconnected  // TODO: obsolete this
     var remote: RemoteManager!  // TODO: can be several
 
@@ -78,6 +79,8 @@ class ConnectionController: NSViewController {
      */
     private func cleanup() {
         // Don't do anything if we're not connected
+        os_log("Cleanup")
+        
         guard let discoveredPeripheral = discoveredPeripheral,
             case .connected = discoveredPeripheral.state else { return }
         
@@ -100,7 +103,8 @@ class ConnectionController: NSViewController {
     private func writeConnectMessage() {
     
         guard let discoveredPeripheral = discoveredPeripheral,
-                let connectCharacteristic = connectCharacteristic
+                let connectCharacteristic = connectCharacteristic,
+                let centralTxCharacteristic = centralTxCharacteristic
         else { return }
         
         // TODO: Send device name
@@ -193,7 +197,7 @@ extension ConnectionController: CBCentralManagerDelegate {
         
         // Reject if the signal strength is too low to attempt data transfer.
         // Change the minimum RSSI value depending on your app’s use case.
-        guard RSSI.intValue >= -50
+        guard RSSI.intValue >= -70
             else {
                 os_log("Discovered perhiperal not in expected range, at %d", RSSI.intValue)
                 return
@@ -249,7 +253,9 @@ extension ConnectionController: CBCentralManagerDelegate {
                         didDisconnectPeripheral peripheral: CBPeripheral,
                         error: Error?)
     {
-        os_log("Perhiperal Disconnected")
+        // TODO: If error = 6, then show message that wi-fi signal interfere ble
+        // Code=6 "The connection has timed out unexpectedly."
+        os_log("Perhiperal Disconnected: %s", error!.localizedDescription)
         discoveredPeripheral = nil
         
         // We're disconnected, so start scanning again
@@ -267,7 +273,7 @@ extension ConnectionController: CBPeripheralDelegate {
     func peripheral(_ peripheral: CBPeripheral,
                     didModifyServices invalidatedServices: [CBService])
     {
-        
+
         for service in invalidatedServices where service.uuid == TransferService.serviceUUID {
             os_log("Transfer service is invalidated - rediscover services")
             peripheral.discoverServices([TransferService.serviceUUID])
@@ -290,7 +296,9 @@ extension ConnectionController: CBPeripheralDelegate {
         // Loop through the newly filled peripheral.services array, just in case there's more than one.
         guard let peripheralServices = peripheral.services else { return }
         for service in peripheralServices {
-            peripheral.discoverCharacteristics([TransferService.characteristicUUID], for: service)
+            peripheral.discoverCharacteristics([TransferService.characteristicUUID,
+                                                TransferService.centralTxUUID],
+                                               for: service)
         }
     }
     
@@ -312,6 +320,10 @@ extension ConnectionController: CBPeripheralDelegate {
             // If it is, subscribe to it
             connectCharacteristic = characteristic
             peripheral.setNotifyValue(true, for: characteristic)
+        }
+        for characteristic in serviceCharacteristics where characteristic.uuid == TransferService.centralTxUUID {
+            centralTxCharacteristic = characteristic
+            peripheral.setNotifyValue(false, for: characteristic)
         }
         
         // Once this is complete, we just need to wait for the data to come in.

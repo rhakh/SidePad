@@ -9,7 +9,12 @@
 import Foundation
 import CoreBluetooth
 
-struct ConnectCandidate {
+class ConnectCandidate {
     let name: String
     let central: CBCentral
+    
+    init(name: String, central: CBCentral) {
+        self.name = name
+        self.central = central
+    }
 }
