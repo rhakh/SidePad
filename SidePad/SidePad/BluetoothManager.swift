@@ -40,18 +40,12 @@ class BluetoothManager: NSObject {
                                     properties: [.notify, .read, .write],
                                     value: nil,
                                     permissions: [.readable, .writeable])
-
-        let rxCharacteristic = CBMutableCharacteristic(
-                                    type: TransferService.centralTxUUID,
-                                    properties: [.read],
-                                    value: nil,
-                                    permissions: [.readable])
         
         // Create a service from the characteristic.
         let transferService = CBMutableService(type: TransferService.serviceUUID, primary: true)
         
         // Add the characteristic to the service.
-        transferService.characteristics = [transferCharacteristic, rxCharacteristic]
+        transferService.characteristics = [transferCharacteristic]
         
         // And add it to the peripheral manager.
         peripheralManager.add(transferService)

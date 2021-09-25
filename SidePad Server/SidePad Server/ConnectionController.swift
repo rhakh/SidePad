@@ -17,14 +17,16 @@ enum ConnectionStatus: Int {
 
 class ConnectionController: NSViewController {
 
+    // MARK: Properties
     @IBOutlet weak var connectionStatusLabel: NSTextField!
 
     var centralManager: CBCentralManager!
     var discoveredPeripheral: CBPeripheral?
     var connectCharacteristic: CBCharacteristic?
-    var centralTxCharacteristic: CBCharacteristic?
     var connectionStatus: ConnectionStatus = .disconnected  // TODO: obsolete this
     var remote: RemoteManager!  // TODO: can be several
+    
+    var mouseLocation: NSPoint { NSEvent.mouseLocation }
 
     override func viewDidLoad() {
         centralManager = CBCentralManager(
@@ -103,8 +105,7 @@ class ConnectionController: NSViewController {
     private func writeConnectMessage() {
     
         guard let discoveredPeripheral = discoveredPeripheral,
-                let connectCharacteristic = connectCharacteristic,
-                let centralTxCharacteristic = centralTxCharacteristic
+                let connectCharacteristic = connectCharacteristic
         else { return }
         
         // TODO: Send device name
@@ -126,7 +127,35 @@ class ConnectionController: NSViewController {
     }
     
     private func runCommandFromRemote(_ command: String) {
-        os_log("Receive command: %s", command)
+        let cords = parseFloats(in: command)
+        
+        if (cords.count == 2) {
+            var newMouseLocation = NSEvent.mouseLocation
+            os_log("Location: x=%.4f y=%.4f",
+                   Float(newMouseLocation.x),
+                   Float(newMouseLocation.y))
+
+            // Because Y axis is inverted on iPhone
+            newMouseLocation.y = NSHeight(NSScreen.screens[0].frame) - newMouseLocation.y
+
+            newMouseLocation.x += CGFloat(cords[0]) // / 10.0     // += x
+            newMouseLocation.y += CGFloat(cords[1]) // / 10.0     // += y
+            CGDisplayMoveCursorToPoint(CGMainDisplayID(), newMouseLocation)
+
+        } else if (command == "Click") {
+            // TODO: Use const for 'Click'
+            var newMouseLocation = NSEvent.mouseLocation
+            os_log("Location: x=%.0f y=%.0f",
+                   Float(newMouseLocation.x),
+                   Float(newMouseLocation.y))
+            
+            // Because Y axis is inverted on iPhone
+            newMouseLocation.y = NSHeight(NSScreen.screens[0].frame) - newMouseLocation.y
+
+            // Create event and post it
+            CGEvent(mouseEventSource: nil, mouseType: CGEventType.leftMouseDown, mouseCursorPosition: newMouseLocation, mouseButton: .left)?.post(tap: CGEventTapLocation.cghidEventTap)
+            CGEvent(mouseEventSource: nil, mouseType: CGEventType.leftMouseUp, mouseCursorPosition: newMouseLocation, mouseButton: .left)?.post(tap: CGEventTapLocation.cghidEventTap)
+        }
     }
     
 }
@@ -296,8 +325,7 @@ extension ConnectionController: CBPeripheralDelegate {
         // Loop through the newly filled peripheral.services array, just in case there's more than one.
         guard let peripheralServices = peripheral.services else { return }
         for service in peripheralServices {
-            peripheral.discoverCharacteristics([TransferService.characteristicUUID,
-                                                TransferService.centralTxUUID],
+            peripheral.discoverCharacteristics([TransferService.characteristicUUID],
                                                for: service)
         }
     }
@@ -320,10 +348,6 @@ extension ConnectionController: CBPeripheralDelegate {
             // If it is, subscribe to it
             connectCharacteristic = characteristic
             peripheral.setNotifyValue(true, for: characteristic)
-        }
-        for characteristic in serviceCharacteristics where characteristic.uuid == TransferService.centralTxUUID {
-            centralTxCharacteristic = characteristic
-            peripheral.setNotifyValue(false, for: characteristic)
         }
         
         // Once this is complete, we just need to wait for the data to come in.
@@ -353,7 +377,9 @@ extension ConnectionController: CBPeripheralDelegate {
                connectionStatus.rawValue)
         
         if connectionStatus == .connected {
-            runCommandFromRemote(stringFromData)
+            DispatchQueue.main.async() {
+                self.runCommandFromRemote(stringFromData)
+            }
         } else {
             
             os_log("Contains: %d", stringFromData.contains("Accept connect"))
