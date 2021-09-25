@@ -9,9 +9,6 @@
 import Foundation
 import CoreBluetooth
 
-// TODO: Set it as name of bluetooth device
-let PERIPHERAL_NAME = "SPPeriferal"
-
 struct TransferService {
     static let serviceUUID = CBUUID(string: "C43F7DE2-644D-46C5-B0CF-2DBCA3E6390E")
     static let characteristicUUID = CBUUID(string: "096839B6-2D43-403E-8CF2-4ADA498EB4D2")
